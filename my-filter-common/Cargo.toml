@@ -1,0 +1,14 @@
+[package]
+name = "my-filter-common"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Shared no_std data contracts and zero-copy packet parser for Pure-Rust XDP Packet Filter"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+aya = { version = "0.13", default-features = false, optional = true }
+
+[features]
+default = []
+std = []
+user = ["dep:aya"]

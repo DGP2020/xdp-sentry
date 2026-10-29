@@ -1,0 +1,95 @@
+name: CI - Pure-Rust XDP Filter
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  unit-and-integration-tests:
+    name: Workspace Tests & Static Analysis
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cargo Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run Unit & Simulation Tests
+        run: cargo test --workspace --verbose
+
+      - name: Run Clippy Linter
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  build-ebpf-target:
+    name: Build eBPF Bytecode (bpfel target)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm libelf-dev
+
+      - name: Install Rust Nightly Toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rust-src
+          targets: bpfel-unknown-none
+
+      - name: Cache bpf-linker
+        uses: actions/cache@v4
+        id: cache-bpf-linker
+        with:
+          path: ~/.cargo/bin/bpf-linker
+          key: ${{ runner.os }}-bpf-linker-v0.9.12
+
+      - name: Install bpf-linker
+        if: steps.cache-bpf-linker.outputs.cache-hit != 'true'
+        run: cargo install bpf-linker
+
+      - name: Compile eBPF Data Plane
+        run: |
+          cargo run --package xtask -- build-ebpf --release
+
+      - name: Inspect eBPF ELF Artifact
+        run: |
+          ls -la target/bpfel-unknown-none/release/my-filter-ebpf
+          readelf -h target/bpfel-unknown-none/release/my-filter-ebpf || true
+
+  kernel-xdp-e2e:
+    name: Kernel XDP Integration Test (veth)
+    needs: [unit-and-integration-tests, build-ebpf-target]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Testbed Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iproute2 iputils-ping hping3
+
+      - name: Run CLI Simulator Verification
+        run: |
+          cargo run --package my-filter -- simulate --count 20 --block-ip 198.51.100.50

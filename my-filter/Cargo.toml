@@ -1,0 +1,15 @@
+[package]
+name = "my-filter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "User-space CLI controller and telemetry dashboard for Pure-Rust XDP Packet Filter"
+
+[dependencies]
+my-filter-common = { path = "../my-filter-common" }
+clap = { workspace = true }
+anyhow = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+aya = { version = "0.13.1", default-features = false }
+my-filter-common = { path = "../my-filter-common", features = ["user"] }

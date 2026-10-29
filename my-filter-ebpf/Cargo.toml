@@ -1,0 +1,16 @@
+[package]
+name = "my-filter-ebpf"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Kernel-space eBPF XDP data plane program for Pure-Rust packet filtering"
+
+[dependencies]
+aya-ebpf = "0.1.1"
+my-filter-common = { path = "../my-filter-common" }
+
+[[bin]]
+name = "my-filter-ebpf"
+path = "src/main.rs"
+
+[workspace]

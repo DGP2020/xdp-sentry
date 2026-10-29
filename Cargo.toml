@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "my-filter-common",
+    "my-filter",
+    "xtask",
+]
+exclude = [
+    "my-filter-ebpf",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Danie <security-infra@pure-rust-xdp.io>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/danie/pure-rust-xdp-filter"
+
+[workspace.dependencies]
+anyhow = { version = "1.0", default-features = false, features = ["std"] }
+clap = { version = "4.5", default-features = false, features = ["derive", "std", "help", "usage", "error-context"] }
