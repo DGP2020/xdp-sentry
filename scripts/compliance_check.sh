@@ -41,7 +41,7 @@ fi
 BINARY="./target/release/my-filter"
 if [ -f "$BINARY" ]; then
     BIN_PERMS=$(stat -c "%a" "$BINARY")
-    if [ "$BIN_PERMS" = "755" ] || [ "$BIN_PERMS" = "775" ] || [ "$BIN_PERMS" = "777" ]; then
+    if [ "$BIN_PERMS" = "755" ] || [ "$BIN_PERMS" = "750" ]; then
         check_status "User-space controller binary permissions valid ($BIN_PERMS)" 0
     else
         check_status "User-space controller permissions non-standard ($BIN_PERMS)" 1
