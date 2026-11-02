@@ -22,7 +22,7 @@ This document prepares you to discuss the **Pure-Rust XDP Packet Filter and Tele
   3. Traverse multiple tables, chains, and connection tracking tables (`conntrack`).
   Under a multi-gigabit DDoS attack (e.g. 10M+ packets per second), the CPU spends 90%+ of its time merely allocating and freeing `sk_buff` structures before dropping packets, leading to kernel CPU starvation.
 - **The XDP Solution**:
-  XDP attaches to the lowest possible software hook in the network subsystem—right inside the NIC driver receive path (`napi_poll`). It intercepts raw DMA buffers (`xdp_buff`) before any `sk_buff` is allocated. Returning `XDP_DROP` recycles the packet buffer immediately at the driver queue level with zero memory allocation and sub-microsecond latency.
+  XDP attaches to the lowest possible software hook in the network subsystem—right inside the NIC driver receive path (`napi_poll`). It intercepts raw DMA buffers (`xdp_buff`) before any `sk_buff` is allocated. Returning `XDP_DROP` recycles the packet buffer immediately at the driver queue level with zero memory allocation, dropping malicious frames in nanoseconds before they reach `netfilter` or socket allocation.
 
 ---
 
@@ -30,8 +30,9 @@ This document prepares you to discuss the **Pure-Rust XDP Packet Filter and Tele
 - **DPDK (Bypass Kernel Completely)**:
   - Requires dedicated CPU cores pinned at 100% polling in user space.
   - Takes exclusive ownership of the NIC; standard Linux networking tools (`ssh`, `curl`, `ip`, `systemd`) stop functioning on that interface without complex virtual interfaces (KNI/TAP).
-- **XDP (Kernel Integrated Bypass)**:
-  - Cooperates with the kernel: non-dropped traffic returns `XDP_PASS` and seamlessly continues up the standard Linux network stack.
+- **XDP (In-Kernel Early Driver Processing)**:
+  - *Technical Clarification*: Calling XDP "kernel-bypass" is inaccurate. Unlike DPDK (which unbinds the NIC from the kernel to run user-space drivers), XDP executes inside the Linux kernel in the driver's RX path (`napi_poll`) prior to `sk_buff` allocation.
+  - Cooperates with the kernel: non-dropped traffic returns `XDP_PASS` and seamlessly continues up the standard Linux network stack without copying.
   - No CPU busy-polling when idle; uses standard Linux interrupt/NAPI handling.
   - Can be offloaded directly into hardware SmartNICs (e.g., Netronome, Nvidia BlueField, AMD/Pensando) via `XDP_FLAGS_HW_MODE`.
 
@@ -82,7 +83,7 @@ By comparing `start + offset + len > end`, we provide a mathematical proof that 
 | :--- | :--- | :--- |
 | `BLOCKLIST` | `BPF_MAP_TYPE_HASH` | Dynamic O(1) IP address lookup. User space can insert/delete IPs without restarting the kernel program. *(Phase 3 extends this to `BPF_MAP_TYPE_LPM_TRIE` for CIDR subnet blocks).* |
 | `METRICS` | `BPF_MAP_TYPE_PERCPU_ARRAY` | High-throughput telemetry. Standard maps suffer from multi-core atomic cache-line bouncing (false sharing). Per-CPU maps allocate dedicated memory per CPU core, enabling zero-contention atomic increments. |
-| `EVENTS` | `BPF_MAP_TYPE_RINGBUF` | Lockless, multi-producer single-consumer circular buffer for streaming drop alerts to user space with sub-microsecond latency, replacing legacy `PerfEventArray`. |
+| `EVENTS` | `BPF_MAP_TYPE_RINGBUF` | Lockless, multi-producer single-consumer circular buffer for streaming drop alerts to user space with minimal memory overhead and zero per-event syscall overhead, replacing legacy `PerfEventArray`. |
 
 ---
 

@@ -1,5 +1,49 @@
-/target/
+# ==============================================================================
+# Rust Build Artifacts
+# ==============================================================================
+target/
 **/*.rs.bk
-Cargo.lock
+
+# Cargo configuration: preserve repo config while ignoring local overrides
+.cargo/*
+!.cargo/config.toml
+
+# Optional: Uncomment if committing Cargo.lock for reproducible builds and CI caching:
+# !Cargo.lock
+# !my-filter-ebpf/Cargo.lock
+
+# ==============================================================================
+# Environment & Logs
+# ==============================================================================
 .env
+.env.*
+!.env.example
 *.log
+
+# ==============================================================================
+# Python (Scripts & Benchmark Suite)
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# ==============================================================================
+# Linux / Network / Profiling Artifacts
+# ==============================================================================
+perf.data
+perf.data.old
+*.pcap
+*.pcapng
+
+# ==============================================================================
+# Operating System & IDEs
+# ==============================================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+*.swp
+*~

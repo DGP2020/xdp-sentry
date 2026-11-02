@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Baseline (No Filter)",
+    "packets_sent": 60000,
+    "packets_dropped": 0,
+    "drop_rate_pct": 0.0,
+    "elapsed_sec": 0.3565636240000032,
+    "throughput_pps": 168272.9138965658,
+    "throughput_mbps": 86.15573191504168,
+    "cpu": {
+      "total_percent": 12.238805970149254,
+      "system_percent": 4.17910447761194,
+      "softirq_percent": 4.17910447761194,
+      "user_percent": 3.8805970149253732
+    },
+    "latency_us": 5.94272706666672
+  },
+  {
+    "name": "iptables (DROP)",
+    "packets_sent": 60000,
+    "packets_dropped": 60000,
+    "drop_rate_pct": 100.0,
+    "elapsed_sec": 0.32787823900000035,
+    "throughput_pps": 182994.76105213538,
+    "throughput_mbps": 93.69331765869332,
+    "cpu": {
+      "total_percent": 13.636363636363637,
+      "system_percent": 5.8441558441558445,
+      "softirq_percent": 3.2467532467532467,
+      "user_percent": 3.5714285714285716
+    },
+    "latency_us": 5.464637316666672
+  },
+  {
+    "name": "nftables (DROP)",
+    "packets_sent": 60000,
+    "packets_dropped": 60000,
+    "drop_rate_pct": 100.0,
+    "elapsed_sec": 0.4338468589999991,
+    "throughput_pps": 138297.64755770683,
+    "throughput_mbps": 70.80839554954589,
+    "cpu": {
+      "total_percent": 11.961722488038278,
+      "system_percent": 5.2631578947368425,
+      "softirq_percent": 2.15311004784689,
+      "user_percent": 4.545454545454546
+    },
+    "latency_us": 7.230780983333318
+  },
+  {
+    "name": "Pure-Rust XDP (SKB Mode)",
+    "packets_sent": 60000,
+    "packets_dropped": 60000,
+    "drop_rate_pct": 100.0,
+    "elapsed_sec": 0.3072556329999969,
+    "throughput_pps": 195277.13589550563,
+    "throughput_mbps": 99.98189357849887,
+    "cpu": {
+      "total_percent": 9.743589743589743,
+      "system_percent": 4.871794871794871,
+      "softirq_percent": 1.794871794871795,
+      "user_percent": 3.076923076923077
+    },
+    "latency_us": 5.120927216666615
+  }
+]

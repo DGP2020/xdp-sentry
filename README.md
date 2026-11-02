@@ -22,10 +22,10 @@ An ultra-low-latency, zero-copy packet filtering and security telemetry engine w
 
 ## Key Highlights
 
-- **Zero-Copy Kernel-Bypass Architecture**: Intercepts raw Ethernet frames directly at the NIC driver DMA layer (`napi_poll`) before the Linux kernel network stack allocates an `sk_buff` structure.
+- **Early Kernel-Level Packet Processing Architecture**: Intercepts raw Ethernet frames directly at the NIC driver DMA layer (`napi_poll`) before the Linux kernel network stack allocates an `sk_buff` structure. *(Note: Unlike user-space bypass like DPDK, XDP executes within the kernel driver path prior to `sk_buff` allocation, preserving kernel security model and cooperative stack integration while eliminating memory allocation overhead.)*
 - **Pure Rust in Kernel & User Space**: Written entirely with the [Aya](https://aya-rs.dev/) eBPF framework in `no_std` Rust. No C dependencies, Clang runtime, or BCC toolchain required.
 - **Mathematical Bounds Checking for the BPF Verifier**: Custom zero-copy packet parsing abstraction (`ptr_at`) that proves to the Linux eBPF verifier that memory accesses can never exceed the packet buffer.
-- **Lock-Free Multi-Core Telemetry**: Utilizes eBPF `PerCpuArray` maps for zero-contention metrics aggregation across all CPU cores and `RingBuffer` for streaming sub-microsecond drop alerts.
+- **Lock-Free Multi-Core Telemetry**: Utilizes eBPF `PerCpuArray` maps for zero-contention metrics aggregation across all CPU cores and `RingBuffer` for streaming high-throughput, low-latency drop alerts to user space.
 - **Dynamic Policy Enforcement**: Real-time CLI allows inserting or removing IP blocks via shared memory eBPF `HashMap` (with Phase 3 `LpmTrie` support for CIDR subnets) without recompiling or reloading the kernel hook.
 
 ---
