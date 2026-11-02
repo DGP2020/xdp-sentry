@@ -1,10 +1,10 @@
 # Pure-Rust XDP Packet Filter & Telemetry Engine
 
-[![CI](https://github.com/danie/pure-rust-xdp-filter/actions/workflows/ci.yml/badge.svg)](https://github.com/danie/pure-rust-xdp-filter/actions/workflows/ci.yml)
+[![CI - Pure-Rust XDP Filter](https://github.com/DGP2020/xdp-sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/DGP2020/xdp-sentry/actions/workflows/ci.yml)\
 [![Language](https://img.shields.io/badge/Language-Pure%20Rust%20(no__std)-orange.svg)](https://www.rust-lang.org/)
 [![eBPF Framework](https://img.shields.io/badge/eBPF%20Framework-Aya-blue.svg)](https://aya-rs.dev/)
 [![Hook](https://img.shields.io/badge/Kernel%20Hook-XDP%20(eXpress%20Data%20Path)-green.svg)](https://docs.kernel.org/networking/af_xdp.html)
-[![License](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 An ultra-low-latency, zero-copy packet filtering and security telemetry engine written in **100% safe, pure Rust** using **eBPF** and **XDP (eXpress Data Path)**.
 
