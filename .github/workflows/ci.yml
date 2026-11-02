@@ -55,18 +55,11 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: rust-src
-          targets: bpfel-unknown-none
-
-      - name: Cache bpf-linker
-        uses: actions/cache@v4
-        id: cache-bpf-linker
-        with:
-          path: ~/.cargo/bin/bpf-linker
-          key: ${{ runner.os }}-bpf-linker-v0.9.12
 
       - name: Install bpf-linker
-        if: steps.cache-bpf-linker.outputs.cache-hit != 'true'
-        run: cargo install bpf-linker
+        uses: taiki-e/install-action@v2
+        with:
+          tool: bpf-linker
 
       - name: Compile eBPF Data Plane
         run: |
