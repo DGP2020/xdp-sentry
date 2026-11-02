@@ -187,6 +187,3 @@ sudo ./target/release/my-filter monitor
 ```
 
 ---
-
-## Interview & Architecture Documentation
-Detailed systems design answers, verifier bounds-checking explanations, and interview pitch cheat-sheets are available in [docs/INTERVIEW_GUIDE.md](docs/INTERVIEW_GUIDE.md).
