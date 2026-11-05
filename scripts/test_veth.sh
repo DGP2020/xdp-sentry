@@ -12,6 +12,9 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 NS_ATTACKER="xdp_attacker_ns"
 VETH_HOST="veth-host"
 VETH_GUEST="veth-guest"
