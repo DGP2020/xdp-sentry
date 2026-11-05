@@ -106,7 +106,7 @@ fn try_filter(ctx: &XdpContext) -> Result<u32, ()> {
     }
 
     // 5. Evaluate Security Policy against eBPF Blocklist Map
-    if let Some(rule) = unsafe { BLOCKLIST.get_ptr_mut(&src_ip) } {
+    if let Some(rule) = BLOCKLIST.get_ptr_mut(&src_ip) {
         // Increment rule drop counter
         unsafe {
             (*rule).drop_count += 1;

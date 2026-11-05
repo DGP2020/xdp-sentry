@@ -14,6 +14,7 @@ use std::time::Duration;
 pub const PIN_DIR: &str = "/sys/fs/bpf/my_filter";
 const EBPF_CANDIDATES: &[&str] = &[
     "target/bpfel-unknown-none/release/my-filter-ebpf",
+    "../target/bpfel-unknown-none/release/my-filter-ebpf",
     "my-filter-ebpf/target/bpfel-unknown-none/release/my-filter-ebpf",
 ];
 
