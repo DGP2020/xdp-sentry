@@ -37,17 +37,17 @@ flowchart TD
     subgraph KernelSpace["Linux Kernel Data Plane (my-filter-ebpf)"]
         NIC["NIC / veth (Raw Frame)"] --> XDP["XDP Driver Hook"]
         XDP --> BoundsCheck["Zero-Copy Bounds Check (ptr_at)"]
-        BoundsCheck --> Dissect["Dissect: Eth -> IPv4 -> TCP/UDP"]
+        BoundsCheck --> Dissect["Dissect: Eth → IPv4 → TCP/UDP"]
         Dissect --> PolicyCheck{"IP in Blocklist?"}
         
-        PolicyCheck -->|Match Found| DropAction["Update Per-CPU Stats\nEmit RingBuf Alert\nXDP_DROP (Drop in nanoseconds)"]
-        PolicyCheck -->|No Match| PassAction["Update Ingress Stats\nXDP_PASS (Continue to Kernel Stack)"]
+        PolicyCheck -->|Match Found| DropAction["Update Per-CPU Stats<br/>Emit RingBuf Alert<br/>XDP_DROP (Drop in nanoseconds)"]
+        PolicyCheck -->|No Match| PassAction["Update Ingress Stats<br/>XDP_PASS (Continue to Kernel Stack)"]
     end
 
     subgraph SharedMemory["eBPF Maps (Shared Kernel/User Space)"]
-        BlockMap[("BLOCKLIST Map\nHashMap<u32, BlockRule>")]
-        MetricsMap[("METRICS Map\nPerCpuArray<TrafficStats>")]
-        AlertsMap[("EVENTS Map\nRingBuf<PacketAlert>")]
+        BlockMap[("BLOCKLIST Map<br/>HashMap&lt;u32, BlockRule&gt;")]
+        MetricsMap[("METRICS Map<br/>PerCpuArray&lt;TrafficStats&gt;")]
+        AlertsMap[("EVENTS Map<br/>RingBuf&lt;PacketAlert&gt;")]
     end
 
     PolicyCheck -.->|O(1) Lookup| BlockMap
@@ -60,14 +60,12 @@ flowchart TD
         TUI["Real-Time Monitor"]
         
         CLI --> Aya
-        Aya -->|Load ELF & Attach| XDP
+        Aya -->|Load ELF and Attach| XDP
         CLI -->|Add / Remove Rule| BlockMap
         TUI -->|Poll Alerts| AlertsMap
         TUI -->|Read Counters| MetricsMap
     end
 ```
-
----
 
 ## Workspace Structure
 
