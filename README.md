@@ -37,22 +37,18 @@ flowchart TD
     subgraph KernelSpace["Linux Kernel Data Plane (my-filter-ebpf)"]
         NIC["NIC / veth (Raw Frame)"] --> XDP["XDP Driver Hook"]
         XDP --> BoundsCheck["Zero-Copy Bounds Check (ptr_at)"]
-        BoundsCheck --> Dissect["Dissect: Eth → IPv4 → TCP/UDP"]
+        BoundsCheck --> Dissect["Dissect: Eth to IPv4 to TCP/UDP"]
         Dissect --> PolicyCheck{"IP in Blocklist?"}
         
-        PolicyCheck -->|Match Found| DropAction["Update Per-CPU Stats<br/>Emit RingBuf Alert<br/>XDP_DROP (Drop in nanoseconds)"]
-        PolicyCheck -->|No Match| PassAction["Update Ingress Stats<br/>XDP_PASS (Continue to Kernel Stack)"]
+        PolicyCheck -->|"Match Found"| DropAction["Update Per-CPU Stats<br/>Emit RingBuf Alert<br/>XDP_DROP (Drop in nanoseconds)"]
+        PolicyCheck -->|"No Match"| PassAction["Update Ingress Stats<br/>XDP_PASS (Continue to Kernel Stack)"]
     end
 
     subgraph SharedMemory["eBPF Maps (Shared Kernel/User Space)"]
-        BlockMap[("BLOCKLIST Map<br/>HashMap&lt;u32, BlockRule&gt;")]
-        MetricsMap[("METRICS Map<br/>PerCpuArray&lt;TrafficStats&gt;")]
-        AlertsMap[("EVENTS Map<br/>RingBuf&lt;PacketAlert&gt;")]
+        BlockMap[("BLOCKLIST Map<br/>HashMap(u32, BlockRule)")]
+        MetricsMap[("METRICS Map<br/>PerCpuArray(TrafficStats)")]
+        AlertsMap[("EVENTS Map<br/>RingBuf(PacketAlert)")]
     end
-
-    PolicyCheck -.->|O(1) Lookup| BlockMap
-    DropAction -.->|Lock-free Increment| MetricsMap
-    DropAction -.->|Push Event| AlertsMap
 
     subgraph UserSpace["User-Space Control Plane (my-filter CLI)"]
         CLI["my-filter CLI (Clap)"]
@@ -60,13 +56,18 @@ flowchart TD
         TUI["Real-Time Monitor"]
         
         CLI --> Aya
-        Aya -->|Load ELF and Attach| XDP
-        CLI -->|Add / Remove Rule| BlockMap
-        TUI -->|Poll Alerts| AlertsMap
-        TUI -->|Read Counters| MetricsMap
     end
-```
 
+    %% Cross-subgraph edges (must stay at root level to prevent Dagre layout hangs)
+    PolicyCheck -.->|"O(1) Lookup"| BlockMap
+    DropAction -.->|"Lock-free Increment"| MetricsMap
+    DropAction -.->|"Push Event"| AlertsMap
+
+    Aya -->|"Load ELF and Attach"| XDP
+    CLI -->|"Add / Remove Rule"| BlockMap
+    TUI -->|"Poll Alerts"| AlertsMap
+    TUI -->|"Read Counters"| MetricsMap
+```
 ## Workspace Structure
 
 ```text
